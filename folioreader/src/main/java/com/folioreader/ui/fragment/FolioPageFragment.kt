@@ -373,11 +373,15 @@ class FolioPageFragment : Fragment(),
 
         mWebview!!.isHorizontalScrollBarEnabled = false
 
+        val webViewPager2 = webViewPager;
+
         mWebview!!.addJavascriptInterface(this, "Highlight")
         mWebview!!.addJavascriptInterface(this, "FolioPageFragment")
-        mWebview!!.addJavascriptInterface(webViewPager, "WebViewPager")
-        mWebview!!.addJavascriptInterface(loadingView, "LoadingView")
-        mWebview!!.addJavascriptInterface(mWebview, "FolioWebView")
+        if (webViewPager2 != null) {
+            mWebview!!.addJavascriptInterface(webViewPager2, "WebViewPager")
+        }
+        loadingView?.let { mWebview!!.addJavascriptInterface(it, "LoadingView") }
+        mWebview!!.addJavascriptInterface(mWebview!!, "FolioWebView")
 
         mWebview!!.setScrollListener(object : FolioWebView.ScrollListener {
             override fun onScrollChange(percent: Int) {

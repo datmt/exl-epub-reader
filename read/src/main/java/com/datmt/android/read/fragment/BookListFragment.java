@@ -67,7 +67,7 @@ public class BookListFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 //bookList.addAll(initDataset(Environment.getExternalStorageDirectory().getAbsolutePath()));
-                bookList.addAll(initDataset("/storage/emulated/0/Download/Tom Clancy collection EPUB/"));
+                bookList.addAll(initDataset("/storage/emulated/0/Download/Awareness"));
                 mAdapter.notifyDataSetChanged();
             }
         });
