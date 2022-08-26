@@ -14,5 +14,6 @@
 
 <resources>
     <dimen name="list_item_height">72dp</dimen>
+    <dimen name="book_item_min_height">120dp</dimen>
     <dimen name="margin_medium">12dp</dimen>
 </resources>

@@ -15,15 +15,21 @@
  */
 package com.datmt.android.read;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.datmt.android.read.fragment.BookListFragment;
+import com.datmt.android.read.helper.EpubScanner;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.Config;
@@ -42,23 +48,20 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity
-        implements OnHighlightListener, ReadLocatorListener, FolioReader.OnClosedListener {
+public class HomeActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = HomeActivity.class.getSimpleName();
     private FolioReader folioReader;
+
+    public FolioReader getFolioReader() {
+        return folioReader;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        folioReader = FolioReader.get()
-                .setOnHighlightListener(this)
-                .setReadLocatorListener(this)
-                .setOnClosedListener(this);
-
-        getHighlightsAndSave();
+        ActivityCompat.requestPermissions(HomeActivity.this, new String[]{READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE},111);
 
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -100,78 +103,6 @@ public class HomeActivity extends AppCompatActivity
  */
     }
 
-    private ReadLocator getLastReadLocator() {
-
-        String jsonString = loadAssetTextAsString("Locators/LastReadLocators/last_read_locator_1.json");
-        return ReadLocator.fromJson(jsonString);
-    }
-
-    @Override
-    public void saveReadLocator(ReadLocator readLocator) {
-        Log.i(LOG_TAG, "-> saveReadLocator -> " + readLocator.toJson());
-    }
-
-    /*
-     * For testing purpose, we are getting dummy highlights from asset. But you can get highlights from your server
-     * On success, you can save highlights to FolioReader DB.
-     */
-    private void getHighlightsAndSave() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ArrayList<HighLight> highlightList = null;
-                ObjectMapper objectMapper = new ObjectMapper();
-                try {
-                    highlightList = objectMapper.readValue(
-                            loadAssetTextAsString("highlights/highlights_data.json"),
-                            new TypeReference<List<HighlightData>>() {
-                            });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                if (highlightList == null) {
-                    folioReader.saveReceivedHighLights(null, new OnSaveHighlight() {
-                        @Override
-                        public void onFinished() {
-                            //You can do anything on successful saving highlight list
-                        }
-                    });
-                }
-            }
-        }).start();
-    }
-
-    private String loadAssetTextAsString(String name) {
-        BufferedReader in = null;
-        try {
-            StringBuilder buf = new StringBuilder();
-            InputStream is = getAssets().open(name);
-            in = new BufferedReader(new InputStreamReader(is));
-
-            String str;
-            boolean isFirst = true;
-            while ((str = in.readLine()) != null) {
-                if (isFirst)
-                    isFirst = false;
-                else
-                    buf.append('\n');
-                buf.append(str);
-            }
-            return buf.toString();
-        } catch (IOException e) {
-            Log.e("HomeActivity", "Error opening asset " + name);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    Log.e("HomeActivity", "Error closing asset " + name);
-                }
-            }
-        }
-        return null;
-    }
 
     @Override
     protected void onDestroy() {
@@ -179,15 +110,5 @@ public class HomeActivity extends AppCompatActivity
         FolioReader.clear();
     }
 
-    @Override
-    public void onHighlight(HighLight highlight, HighLight.HighLightAction type) {
-        Toast.makeText(this,
-                "highlight id = " + highlight.getUUID() + " type = " + type,
-                Toast.LENGTH_SHORT).show();
-    }
 
-    @Override
-    public void onFolioReaderClosed() {
-        Log.v(LOG_TAG, "-> onFolioReaderClosed");
-    }
 }

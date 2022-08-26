@@ -1,18 +1,26 @@
 package com.datmt.android.read.fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Environment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import com.datmt.android.read.R;
 import com.datmt.android.read.adapater.BookItemAdapter;
+import com.datmt.android.read.helper.EpubScanner;
+import com.datmt.android.read.model.Book;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class BookListFragment extends Fragment {
@@ -21,7 +29,9 @@ public class BookListFragment extends Fragment {
     private static final String KEY_LAYOUT_MANAGER = "layoutManager";
     private static final int SPAN_COUNT = 2;
     private static final int DATASET_COUNT = 60;
+    private static final int OPEN_DIR_INTENT = 19212;
 
+    private static final String LOG_TAG = BookListFragment.class.getName();
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
         LINEAR_LAYOUT_MANAGER
@@ -33,15 +43,11 @@ public class BookListFragment extends Fragment {
     protected RecyclerView mRecyclerView;
     protected BookItemAdapter mAdapter;
     protected RecyclerView.LayoutManager mLayoutManager;
-    protected String[] mDataset;
+    protected List<Book> bookList = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Initialize dataset, this data would usually come from a local content provider or
-        // remote server.
-        initDataset();
     }
 
     @Override
@@ -53,6 +59,18 @@ public class BookListFragment extends Fragment {
         // BEGIN_INCLUDE(initializeRecyclerView)
         mRecyclerView = rootView.findViewById(R.id.bookListView);
 
+        Button button = rootView.findViewById(R.id.openDirToScan);
+
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onClick(View view) {
+                //bookList.addAll(initDataset(Environment.getExternalStorageDirectory().getAbsolutePath()));
+                bookList.addAll(initDataset("/storage/emulated/0/Download/Tom Clancy collection EPUB/"));
+                mAdapter.notifyDataSetChanged();
+            }
+        });
         // LinearLayoutManager is used here, this will layout the elements in a similar fashion
         // to the way ListView would layout elements. The RecyclerView.LayoutManager defines how
         // elements are laid out.
@@ -67,7 +85,7 @@ public class BookListFragment extends Fragment {
         }
         setRecyclerViewLayoutManager(mCurrentLayoutManagerType);
 
-        mAdapter = new BookItemAdapter(mDataset);
+        mAdapter = new BookItemAdapter(bookList);
         // Set CustomAdapter as the adapter for RecyclerView.
         mRecyclerView.setAdapter(mAdapter);
         // END_INCLUDE(initializeRecyclerView)
@@ -112,10 +130,16 @@ public class BookListFragment extends Fragment {
      * Generates Strings for RecyclerView's adapter. This data would usually come
      * from a local content provider or remote server.
      */
-    private void initDataset() {
-        mDataset = new String[DATASET_COUNT];
-        for (int i = 0; i < DATASET_COUNT; i++) {
-            mDataset[i] = "This is element #" + i;
-        }
+    private List<Book> initDataset(String startDir) {
+//        if (bookList != null && bookList.size()> 0) {
+//            Log.i("BLLL", "Book list not null");
+//            return new ArrayList<>();
+//        }
+        EpubScanner scanner = new EpubScanner(startDir);
+
+        return scanner.getFiles();
+
     }
+
+
 }
