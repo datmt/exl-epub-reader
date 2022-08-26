@@ -325,6 +325,10 @@ class FolioWebView : WebView {
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> defineSelection -> $selectedText")
                 uiHandler.post { showDictDialog(selectedText) }
             }
+
+            R.id.saveSelection-> {
+                Toast.makeText(context, context.getString(R.string.save), Toast.LENGTH_SHORT).show()
+            }
             else -> {
                 Log.w(LOG_TAG, "-> onTextSelectionItemClicked -> unknown id = $id")
             }

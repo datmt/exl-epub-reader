@@ -64,6 +64,7 @@
     <string name="search_hint">Vyhľadávanie v knihe</string>
     <string name="search_empty_text">Žiadne výsledky.</string>
     <string name="search_failure_text">Niečo sa pokazilo.</string>
+    <string name="save">Save</string>
 
     <plurals name="numberOfSearchResults">
         <item quantity="one">%d výskyt</item>

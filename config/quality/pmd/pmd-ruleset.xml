@@ -17,7 +17,7 @@
     </rule>
     <rule ref="rulesets/java/logging-java.xml">
         <!-- This rule wasn't working properly and given errors in every var call info -->
-        <exclude name="GuardLogStatementJavaUtil" />
+<!--        <exclude name="GuardLogStatementJavaUtil" />-->
     </rule>
     <rule ref="rulesets/java/braces.xml">
         <!-- We allow single line if's without braces -->

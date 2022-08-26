@@ -8,8 +8,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Background async task which downloads the html content of a web page
@@ -33,7 +36,9 @@ public class HtmlTask extends AsyncTask<String, Void, String> {
         String strUrl = urls[0];
         try {
             URL url = new URL(strUrl);
-            URLConnection urlConnection = url.openConnection();
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("Connection", "keep-alive");
+//            urlConnection.getHeaderFields().put("Accept-Encoding", new ArrayList<String>("identity"));
             InputStream inputStream = urlConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil.charsetNameForURLConnection(urlConnection)));
             StringBuilder stringBuilder = new StringBuilder();
